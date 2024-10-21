@@ -19,6 +19,7 @@ interface Message {
 const NodeEditor: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const { toast } = useToast();
 
   const addMessage = (parentId: string | null = null) => {
@@ -78,30 +79,65 @@ const NodeEditor: React.FC = () => {
     );
   };
 
+  const handleNodeSelect = (id: string) => {
+    setSelectedNodeId(id);
+  };
+
+  const getPathToNode = (nodeId: string): Message[] => {
+    const path: Message[] = [];
+    let currentId: string | null = nodeId;
+
+    while (currentId) {
+      const currentNode = messages.find(msg => msg.id === currentId);
+      if (currentNode) {
+        path.unshift(currentNode);
+        currentId = currentNode.parentId;
+      } else {
+        break;
+      }
+    }
+
+    return path;
+  };
+
+  const selectedPath = selectedNodeId ? getPathToNode(selectedNodeId) : [];
+
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="w-full h-screen bg-gray-100 relative overflow-hidden">
-        {messages.map((message) => (
-          <DraggableNode
-            key={message.id}
-            message={message}
-            updatePosition={updateNodePosition}
-            onSpawnChild={() => addMessage(message.id)}
-          />
-        ))}
-        <div className="absolute bottom-0 left-0 right-0 p-4 bg-white">
-          <div className="flex space-x-2 max-w-4xl mx-auto">
-            <Input
-              type="text"
-              placeholder="Type your message..."
-              value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && addMessage()}
-              className="flex-grow"
+      <div className="flex h-screen bg-gray-100">
+        <div className="w-1/4 bg-white p-4 overflow-y-auto">
+          <h2 className="text-xl font-bold mb-4">Chat Path</h2>
+          {selectedPath.map((message) => (
+            <div key={message.id} className="mb-2 p-2 bg-gray-100 rounded">
+              <span className="font-semibold">{message.sender === 'user' ? 'You' : 'AI'}:</span> {message.content}
+            </div>
+          ))}
+        </div>
+        <div className="flex-1 relative overflow-hidden">
+          {messages.map((message) => (
+            <DraggableNode
+              key={message.id}
+              message={message}
+              updatePosition={updateNodePosition}
+              onSpawnChild={() => addMessage(message.id)}
+              onSelect={handleNodeSelect}
+              isSelected={message.id === selectedNodeId}
             />
-            <Button onClick={() => addMessage()}>
-              <Send className="mr-2 h-4 w-4" /> Send
-            </Button>
+          ))}
+          <div className="absolute bottom-0 left-0 right-0 p-4 bg-white">
+            <div className="flex space-x-2 max-w-4xl mx-auto">
+              <Input
+                type="text"
+                placeholder="Type your message..."
+                value={newMessage}
+                onChange={(e) => setNewMessage(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && addMessage()}
+                className="flex-grow"
+              />
+              <Button onClick={() => addMessage()}>
+                <Send className="mr-2 h-4 w-4" /> Send
+              </Button>
+            </div>
           </div>
         </div>
       </div>

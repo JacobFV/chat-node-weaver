@@ -11,9 +11,11 @@ interface DraggableNodeProps {
   };
   updatePosition: (id: string, position: { x: number; y: number }) => void;
   onSpawnChild: () => void;
+  onSelect: (id: string) => void;
+  isSelected: boolean;
 }
 
-const DraggableNode: React.FC<DraggableNodeProps> = ({ message, updatePosition, onSpawnChild }) => {
+const DraggableNode: React.FC<DraggableNodeProps> = ({ message, updatePosition, onSpawnChild, onSelect, isSelected }) => {
   const [{ isDragging }, drag] = useDrag({
     type: 'node',
     item: { id: message.id, ...message.position },
@@ -38,8 +40,9 @@ const DraggableNode: React.FC<DraggableNodeProps> = ({ message, updatePosition, 
         opacity: isDragging ? 0.5 : 1,
         cursor: 'move',
       }}
+      onClick={() => onSelect(message.id)}
     >
-      <ChatNode message={message} onSpawnChild={onSpawnChild} />
+      <ChatNode message={message} onSpawnChild={onSpawnChild} isSelected={isSelected} />
     </div>
   );
 };

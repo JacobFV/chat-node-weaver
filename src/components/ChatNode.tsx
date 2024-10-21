@@ -12,11 +12,12 @@ interface Message {
 interface ChatNodeProps {
   message: Message;
   onSpawnChild: () => void;
+  isSelected: boolean;
 }
 
-const ChatNode: React.FC<ChatNodeProps> = ({ message, onSpawnChild }) => {
+const ChatNode: React.FC<ChatNodeProps> = ({ message, onSpawnChild, isSelected }) => {
   return (
-    <Card className={`w-64 ${message.sender === 'user' ? 'bg-blue-50' : 'bg-green-50'}`}>
+    <Card className={`w-64 ${message.sender === 'user' ? 'bg-blue-50' : 'bg-green-50'} ${isSelected ? 'ring-2 ring-blue-500' : ''}`}>
       <CardHeader className="flex flex-row items-center space-x-2 p-4">
         <MessageCircle className={`h-6 w-6 ${message.sender === 'user' ? 'text-blue-500' : 'text-green-500'}`} />
         <span className="font-semibold">{message.sender === 'user' ? 'You' : 'AI'}</span>
