@@ -1,35 +1,23 @@
 import React from 'react';
-import { MessageCircle, Plus } from 'lucide-react';
-import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-
-interface Message {
-  id: string;
-  content: string;
-  sender: 'user' | 'ai';
-}
+import { MessageCircle } from 'lucide-react';
+import { Card, CardContent } from "@/components/ui/card";
+import { Message } from '../types/Message';
 
 interface ChatNodeProps {
   message: Message;
-  onSpawnChild: () => void;
   isSelected: boolean;
 }
 
-const ChatNode: React.FC<ChatNodeProps> = ({ message, onSpawnChild, isSelected }) => {
+const ChatNode: React.FC<ChatNodeProps> = ({ message, isSelected }) => {
   return (
-    <Card className={`w-64 ${message.sender === 'user' ? 'bg-blue-50' : 'bg-green-50'} ${isSelected ? 'ring-2 ring-blue-500' : ''}`}>
-      <CardHeader className="flex flex-row items-center space-x-2 p-4">
-        <MessageCircle className={`h-6 w-6 ${message.sender === 'user' ? 'text-blue-500' : 'text-green-500'}`} />
-        <span className="font-semibold">{message.sender === 'user' ? 'You' : 'AI'}</span>
-      </CardHeader>
-      <CardContent className="p-4 pt-0">
-        {message.content}
+    <Card className={`mb-4 ${message.sender === 'user' ? 'bg-blue-50' : 'bg-green-50'} ${isSelected ? 'ring-2 ring-blue-500' : ''}`}>
+      <CardContent className="p-3">
+        <div className="flex items-center space-x-2 mb-2">
+          <MessageCircle className={`h-4 w-4 ${message.sender === 'user' ? 'text-blue-500' : 'text-green-500'}`} />
+          <span className="text-sm font-semibold">{message.sender === 'user' ? 'You' : 'AI'}</span>
+        </div>
+        <p className="text-sm">{message.content}</p>
       </CardContent>
-      <CardFooter>
-        <Button onClick={onSpawnChild} variant="outline" size="sm">
-          <Plus className="mr-2 h-4 w-4" /> Spawn Child
-        </Button>
-      </CardFooter>
     </Card>
   );
 };
