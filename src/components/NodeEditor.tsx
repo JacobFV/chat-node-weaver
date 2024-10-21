@@ -29,6 +29,7 @@ const NodeEditor: React.FC = () => {
         sender: 'user',
         position: { x: Math.random() * 500, y: Math.random() * 500 },
         isMinimized: false,
+        marginalNotes: '',
       };
       setChatPanes([...chatPanes, newPane]);
       setNewMessage('');
@@ -41,6 +42,7 @@ const NodeEditor: React.FC = () => {
           sender: 'ai',
           position: { x: newPane.position.x + 50, y: newPane.position.y + 50 },
           isMinimized: false,
+          marginalNotes: '',
         };
         setChatPanes(prevPanes => [...prevPanes, aiPane]);
         toast({
@@ -121,30 +123,44 @@ const NodeEditor: React.FC = () => {
             ))}
           </div>
         ) : (
-          <ChatView messages={chatPanes} onReply={(parentId, content) => {
-            const newMessage: ChatPaneState = {
-              id: Date.now().toString(),
-              content,
-              sender: 'user',
-              position: { x: 0, y: 0 },
-              isMinimized: false,
-            };
-            setChatPanes(prevPanes => [...prevPanes, newMessage]);
-            setTimeout(() => {
-              const aiMessage: ChatPaneState = {
-                id: (Date.now() + 1).toString(),
-                content: `AI response to: "${content}"`,
-                sender: 'ai',
+          <ChatView 
+            messages={chatPanes} 
+            onReply={(parentId, content) => {
+              const newMessage: ChatPaneState = {
+                id: Date.now().toString(),
+                content,
+                sender: 'user',
                 position: { x: 0, y: 0 },
                 isMinimized: false,
+                marginalNotes: '',
+                parentId,
               };
-              setChatPanes(prevPanes => [...prevPanes, aiMessage]);
-              toast({
-                title: "New message received",
-                description: "The AI has responded to your message.",
-              });
-            }, 1000);
-          }} />
+              setChatPanes(prevPanes => [...prevPanes, newMessage]);
+              setTimeout(() => {
+                const aiMessage: ChatPaneState = {
+                  id: (Date.now() + 1).toString(),
+                  content: `AI response to: "${content}"`,
+                  sender: 'ai',
+                  position: { x: 0, y: 0 },
+                  isMinimized: false,
+                  marginalNotes: '',
+                  parentId: newMessage.id,
+                };
+                setChatPanes(prevPanes => [...prevPanes, aiMessage]);
+                toast({
+                  title: "New message received",
+                  description: "The AI has responded to your message.",
+                });
+              }, 1000);
+            }}
+            onAddNote={(id, note) => {
+              setChatPanes(prevPanes =>
+                prevPanes.map(pane =>
+                  pane.id === id ? { ...pane, marginalNotes: note } : pane
+                )
+              );
+            }}
+          />
         )}
         <div className="p-4 bg-white">
           <div className="flex space-x-2 max-w-4xl mx-auto">

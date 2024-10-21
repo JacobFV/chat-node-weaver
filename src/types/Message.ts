@@ -3,4 +3,5 @@ export interface Message {
   content: string;
   sender: 'user' | 'ai';
   parentId?: string;
+  marginalNotes?: string;
 }
